@@ -26,7 +26,7 @@ void setup() {
   
   //myStepper.setSpeed(5);
   
-  stepper.setMaxSpeed(200.0);
+  stepper.setMaxSpeed(400.0);
   stepper.setAcceleration(50.0);
   stepper.moveTo(1000);
   
@@ -89,10 +89,11 @@ BLEDevice central = BLE.central();
             Serial.println(degreesCharacteristic.value());
             turndegrees = degreesCharacteristic.value().toInt();
             turnsteps = round(stepsPerRevolution*turndegrees/360);
+            stepper.setCurrentPosition(0);
         }
 
-    stepper.moveTo(turnsteps);
-    stepper.run();
+      stepper.moveTo(turnsteps);
+      stepper.run();
       
       }
     }
