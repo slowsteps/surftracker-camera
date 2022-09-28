@@ -28,7 +28,8 @@ void setup() {
   
   stepper.setMaxSpeed(400.0);
   stepper.setAcceleration(50.0);
-  stepper.moveTo(1000);
+  stepper.setCurrentPosition(0);
+
   
   //BLE
   if (!BLE.begin()) {
@@ -54,36 +55,27 @@ void setup() {
 
 
 void loop() {
-  
-
- //turnMotor();
+ 
  handleBLE();
   
-  
 }
 
-void turnMotor(int steps) {
-  //Serial.println(steps);
-  //myStepper.step(steps);
-  //stepper.runToNewPosition(steps);
 
-  //delay(1000);
-}
 
 void handleBLE() {
 
 
   
-BLEDevice central = BLE.central();
+  BLEDevice central = BLE.central();
 
   int turnsteps = 0;
   
   if (central) {
     Serial.println("Connected to central: ");
-  
+    digitalWrite(LED_BUILTIN, HIGH);    
+         
     while (central.connected()) {
 
-      //STRING
       if (degreesCharacteristic.written()) {
             Serial.println("received raw value Degrees");
             Serial.println(degreesCharacteristic.value());
@@ -97,13 +89,13 @@ BLEDevice central = BLE.central();
       
       }
     }
+    else {
+      //when ble disconnects make sure it does not carry on with old data
+      digitalWrite(LED_BUILTIN, LOW);     
+      stepper.setCurrentPosition(0);
+      turnsteps = 0;
+    }
 
-//    stepper.moveTo(turnsteps);
-//    stepper.run();
-
-    // when the central disconnects, print it out:
-    //Serial.print(F("Disconnected from central: "));
-    //Serial.println(central.address());
-    digitalWrite(LED_BUILTIN, LOW);         // will turn the LED off
+        
   
 }
