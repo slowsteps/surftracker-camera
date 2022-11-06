@@ -6,34 +6,29 @@ const int stepsPerRevolution = 2038;  // change this to fit the number of steps 
 // for your motor
 int dir = 1;
 int turndegrees = 0;
-int turnsteps = 1019;
+int turnsteps = 0;
 //TODO rename from LED ?
 BLEService ledService("180A");
 BLEByteCharacteristic switchCharacteristic("2A57", BLERead | BLEWrite);
 BLEStringCharacteristic degreesCharacteristic("1A57", BLERead | BLEWrite, 20); 
 
-// initialize the stepper library on pins 8 through 11:
-//Stepper myStepper(stepsPerRevolution, 4, 5, 6, 7);
-//AccelStepper stepper(4,5,6,7);
 AccelStepper stepper(AccelStepper::FULL4WIRE, 4, 5, 6, 7);
 
 
 void setup() {
-  //What if not connected to IDE
+  //TODO What if not connected to IDE
   Serial.begin(9600);
   while (!Serial);
   Serial.println("starting");
   
-  //myStepper.setSpeed(5);
-  
-  stepper.setMaxSpeed(400.0);
+  stepper.setMaxSpeed(500.0);
   stepper.setAcceleration(50.0);
   stepper.setCurrentPosition(0);
 
   
   //BLE
   if (!BLE.begin()) {
-    //Serial.println("starting Bluetooth® Low Energy failed!");
+    Serial.println("starting Bluetooth® Low Energy failed!");
     while (1);
   }
   else {
@@ -76,24 +71,34 @@ void handleBLE() {
          
     while (central.connected()) {
 
+       //incoming value from phone
       if (degreesCharacteristic.written()) {
-            Serial.println("received raw value Degrees");
+            Serial.println("received turn degrees");
             Serial.println(degreesCharacteristic.value());
             turndegrees = degreesCharacteristic.value().toInt();
             turnsteps = round(stepsPerRevolution*turndegrees/360);
+            
             stepper.setCurrentPosition(0);
+            
+
+            Serial.println("turnsteps:");
+            Serial.println(turnsteps);
+            //stepper.move(turnsteps);  
+            stepper.moveTo(turnsteps);
         }
 
-      stepper.moveTo(turnsteps);
       stepper.run();
       
       }
+      Serial.println("central not connected");
     }
     else {
       //when ble disconnects make sure it does not carry on with old data
+      Serial.println("No central");
       digitalWrite(LED_BUILTIN, LOW);     
       stepper.setCurrentPosition(0);
       turnsteps = 0;
+      
     }
 
         
