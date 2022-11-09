@@ -21,8 +21,8 @@ void setup() {
   while (!Serial);
   Serial.println("starting");
   
-  stepper.setMaxSpeed(500.0);
-  stepper.setAcceleration(50.0);
+  stepper.setMaxSpeed(400.0);
+  stepper.setAcceleration(40.0);
   stepper.setCurrentPosition(0);
 
   
@@ -78,13 +78,13 @@ void handleBLE() {
             turndegrees = degreesCharacteristic.value().toInt();
             turnsteps = round(stepsPerRevolution*turndegrees/360);
             
-            stepper.setCurrentPosition(0);
+            //stepper.setCurrentPosition(0);
             
 
             Serial.println("turnsteps:");
             Serial.println(turnsteps);
-            //stepper.move(turnsteps);  
-            stepper.moveTo(turnsteps);
+            stepper.move(turnsteps);  
+            //stepper.moveTo(turnsteps);
         }
 
       stepper.run();
